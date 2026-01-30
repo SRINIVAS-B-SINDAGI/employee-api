@@ -12,6 +12,7 @@ import (
 	transportgrpc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/transport/grpc"
 	authuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/auth"
 	employeeuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/employee"
+	salaryuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/salary"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 )
@@ -51,9 +52,12 @@ func main() {
 	authService := authuc.NewService(userRepo, jwtManager)
 
 	employeeService := employeeuc.NewService(employeeRepo)
+	salaryService := salaryuc.NewService(employeeRepo)
+
 	grpcServer := transportgrpc.NewServer(transportgrpc.ServerConfig{
 		AuthService:     authService,
 		EmployeeService: employeeService,
+		SalaryService:   salaryService,
 		Logger:          log.With(logger, "transport", "grpc"),
 	})
 
