@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"os/signal"
@@ -12,6 +11,7 @@ import (
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/persistence/postgres"
 	transportgrpc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/transport/grpc"
 	authuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/auth"
+	employeeuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/employee"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 )
@@ -26,7 +26,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(cfg.Server.GRPCPort)
 	_ = level.Info(logger).Log("msg", "connecting to database")
 	db, err := postgres.NewConnection(cfg.Database)
 	if err != nil {
@@ -47,12 +46,15 @@ func main() {
 	}
 
 	userRepo := postgres.NewUserRepository(db)
+	employeeRepo := postgres.NewEmployeeRepository(db)
 	jwtManager := auth.NewJWTManager(cfg.JWT)
 	authService := authuc.NewService(userRepo, jwtManager)
 
+	employeeService := employeeuc.NewService(employeeRepo)
 	grpcServer := transportgrpc.NewServer(transportgrpc.ServerConfig{
-		AuthService: authService,
-		Logger:      log.With(logger, "transport", "grpc"),
+		AuthService:     authService,
+		EmployeeService: employeeService,
+		Logger:          log.With(logger, "transport", "grpc"),
 	})
 
 	errChan := make(chan error, 1)

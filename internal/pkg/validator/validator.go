@@ -29,3 +29,10 @@ func ValidatePassword(password string) error {
 	}
 	return nil
 }
+
+func ValidateRequired(value, fieldName string) error {
+	if strings.TrimSpace(value) == "" {
+		return errors.NewValidationError(fieldName + " is required")
+	}
+	return nil
+}
