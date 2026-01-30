@@ -51,6 +51,40 @@ func (s *employeeServer) GetEmployee(ctx context.Context, req *employeev1.GetEmp
 	return entityToProto(employee), nil
 }
 
+func (s *employeeServer) UpdateEmployee(ctx context.Context, req *employeev1.UpdateEmployeeRequest) (*employeev1.Employee, error) {
+	id, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, ToGRPCError(errors.NewValidationError("invalid employee id format"))
+	}
+
+	grossSalary, err := decimal.NewFromString(req.GetGrossSalary())
+	if err != nil {
+		return nil, ToGRPCError(errors.NewValidationError("invalid gross_salary format"))
+	}
+
+	employee, err := s.service.Update(ctx, id, req.GetFullName(), req.GetJobTitle(), req.GetCountry(), grossSalary)
+	if err != nil {
+		return nil, ToGRPCError(err)
+	}
+
+	return entityToProto(employee), nil
+}
+
+func (s *employeeServer) DeleteEmployee(ctx context.Context, req *employeev1.DeleteEmployeeRequest) (*employeev1.DeleteEmployeeResponse, error) {
+	id, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, ToGRPCError(errors.NewValidationError("invalid employee id format"))
+	}
+
+	if err := s.service.Delete(ctx, id); err != nil {
+		return nil, ToGRPCError(err)
+	}
+
+	return &employeev1.DeleteEmployeeResponse{
+		Success: true,
+	}, nil
+}
+
 func entityToProto(e *entity.Employee) *employeev1.Employee {
 	return &employeev1.Employee{
 		Id:          e.ID.String(),
