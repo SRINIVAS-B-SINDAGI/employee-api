@@ -1,12 +1,15 @@
 package config
 
 import (
+	"time"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	JWT      JWTConfig
 }
 
 type ServerConfig struct {
@@ -38,4 +41,10 @@ func (d DatabaseConfig) DSN() string {
 		" password=" + d.Password +
 		" dbname=" + d.Name +
 		" sslmode=" + d.SSLMode
+}
+
+type JWTConfig struct {
+	Secret     string        `envconfig:"JWT_SECRET" default:"your-secret-key-change-in-production"`
+	Expiration time.Duration `envconfig:"JWT_EXPIRATION" default:"24h"`
+	Issuer     string        `envconfig:"JWT_ISSUER" default:"employee-api"`
 }

@@ -32,3 +32,15 @@ func (s *authServer) Register(ctx context.Context, req *authv1.RegisterRequest) 
 		Email: user.Email,
 	}, nil
 }
+
+// Login authenticates a user and returns a JWT token.
+func (s *authServer) Login(ctx context.Context, req *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+	token, err := s.service.Login(ctx, req.GetEmail(), req.GetPassword())
+	if err != nil {
+		return nil, ToGRPCError(err)
+	}
+
+	return &authv1.LoginResponse{
+		Token: token,
+	}, nil
+}
