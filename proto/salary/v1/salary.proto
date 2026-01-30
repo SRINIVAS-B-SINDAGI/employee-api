@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package salary.v1;
+
+option go_package = "github.com/employee-proto/salary/v1;salaryv1";
+
+// SalaryService provides salary calculation and metrics functionality
+service SalaryService {
+  // CalculateNetSalary calculates the net salary for an employee
+  rpc CalculateNetSalary(CalculateNetSalaryRequest) returns (CalculateNetSalaryResponse);
+
+  // GetSalaryStatsByCountry returns salary statistics for a country
+  rpc GetSalaryStatsByCountry(GetSalaryStatsByCountryRequest) returns (SalaryStatsResponse);
+
+  // GetAvgSalaryByJobTitle returns average salary for a job title
+  rpc GetAvgSalaryByJobTitle(GetAvgSalaryByJobTitleRequest) returns (JobTitleSalaryStatsResponse);
+}
+
+message CalculateNetSalaryRequest {
+  string employee_id = 1;
+}
+
+message CalculateNetSalaryResponse {
+  string gross_salary = 1;
+  string tax_rate = 2;
+  string tax_amount = 3;
+  string net_salary = 4;
+}
+
+message GetSalaryStatsByCountryRequest {
+  string country = 1;
+}
+
+message SalaryStatsResponse {
+  string min_salary = 1;
+  string max_salary = 2;
+  string avg_salary = 3;
+  int64 count = 4;
+}
+
+message GetAvgSalaryByJobTitleRequest {
+  string job_title = 1;
+}
+
+message JobTitleSalaryStatsResponse {
+  string job_title = 1;
+  string avg_salary = 2;
+  int64 count = 3;
+}
+
+
+
+	
