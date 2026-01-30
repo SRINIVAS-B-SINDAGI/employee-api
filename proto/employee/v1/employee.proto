@@ -1,0 +1,64 @@
+syntax = "proto3";
+package employee.v1;
+
+option go_package = "github.com/employee-api/proto/employee/v1;employeev1";
+
+import "google/protobuf/timestamp.proto";
+
+service EmployeeService {
+  rpc CreateEmployee(CreateEmployeeRequest) returns (Employee);
+  rpc GetEmployee(GetEmployeeRequest) returns (Employee);
+  rpc ListEmployees(ListEmployeesRequest) returns (ListEmployeesResponse);
+  rpc UpdateEmployee(UpdateEmployeeRequest) returns (Employee);
+  rpc DeleteEmployee(DeleteEmployeeRequest) returns (DeleteEmployeeResponse);
+}
+
+message CreateEmployeeRequest {
+  string full_name = 1;
+  string job_title = 2;
+  string country = 3;
+  string gross_salary = 4;
+}
+
+message Employee {
+  string id = 1;
+  string full_name = 2;
+  string job_title = 3;
+  string country = 4;
+  string gross_salary = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message GetEmployeeRequest {
+  string id = 1;
+}
+
+message ListEmployeesRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListEmployeesResponse {
+  repeated Employee employees = 1;
+  int64 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  int32 total_pages = 5;
+}
+
+message UpdateEmployeeRequest {
+  string id = 1;
+  string full_name = 2;
+  string job_title = 3;
+  string country = 4;
+  string gross_salary = 5;
+}
+
+message DeleteEmployeeRequest {
+  string id = 1;
+}
+
+message DeleteEmployeeResponse {
+  bool success = 1;
+}
