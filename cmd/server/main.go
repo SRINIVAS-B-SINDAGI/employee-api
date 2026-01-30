@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/auth"
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/config"
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/persistence/postgres"
 	transportgrpc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/transport/grpc"
@@ -46,7 +47,8 @@ func main() {
 	}
 
 	userRepo := postgres.NewUserRepository(db)
-	authService := authuc.NewService(userRepo)
+	jwtManager := auth.NewJWTManager(cfg.JWT)
+	authService := authuc.NewService(userRepo, jwtManager)
 
 	grpcServer := transportgrpc.NewServer(transportgrpc.ServerConfig{
 		AuthService: authService,
