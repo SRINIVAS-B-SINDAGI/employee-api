@@ -5,8 +5,10 @@ import (
 
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/domain/entity"
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/domain/repository"
+	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/domain/valueobject"
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/pkg/errors"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -56,4 +58,61 @@ func (r *employeeRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		return errors.NewNotFoundError("employee")
 	}
 	return nil
+}
+
+func (r *employeeRepository) GetSalaryStatsByCountry(ctx context.Context, country string) (*valueobject.SalaryStats, error) {
+	var result struct {
+		MinSalary decimal.Decimal
+		MaxSalary decimal.Decimal
+		AvgSalary decimal.Decimal
+		Count     int64
+	}
+
+	err := r.db.WithContext(ctx).
+		Model(&entity.Employee{}).
+		Select("MIN(gross_salary) as min_salary, MAX(gross_salary) as max_salary, AVG(gross_salary) as avg_salary, COUNT(*) as count").
+		Where("country = ?", country).
+		Scan(&result).Error
+
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+
+	if result.Count == 0 {
+		return nil, errors.NewNotFoundError("employees in country")
+	}
+
+	return &valueobject.SalaryStats{
+		MinSalary: result.MinSalary,
+		MaxSalary: result.MaxSalary,
+		AvgSalary: result.AvgSalary.Round(2),
+		Count:     result.Count,
+	}, nil
+}
+
+func (r *employeeRepository) GetAvgSalaryByJobTitle(ctx context.Context, jobTitle string) (*valueobject.JobTitleSalaryStats, error) {
+	var result struct {
+		AvgSalary decimal.Decimal
+		Count     int64
+	}
+
+	err := r.db.WithContext(ctx).
+		Model(&entity.Employee{}).
+		Select("AVG(gross_salary) as avg_salary, COUNT(*) as count").
+		Where("job_title = ?", jobTitle).
+		Scan(&result).Error
+
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+
+	if result.Count == 0 {
+		return nil, errors.NewNotFoundError("employees with job title")
+	}
+
+	return &valueobject.JobTitleSalaryStats{
+		JobTitle:  jobTitle,
+		AvgSalary: result.AvgSalary.Round(2),
+		Count:     result.Count,
+	}, nil
 }
