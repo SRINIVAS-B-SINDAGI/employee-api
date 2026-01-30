@@ -1,6 +1,8 @@
 package grpc
 
 import (
+	authuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/auth"
+	authv1 "github.com/SRINIVAS-B-SINDAGI/employee-api/proto/auth/v1"
 	"github.com/go-kit/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -8,7 +10,8 @@ import (
 
 // ServerConfig holds the configuration for the gRPC server.
 type ServerConfig struct {
-	Logger log.Logger
+	AuthService authuc.Service
+	Logger      log.Logger
 }
 
 // NewServer creates a new gRPC server with all services registered.
@@ -21,6 +24,7 @@ func NewServer(cfg ServerConfig) *grpc.Server {
 
 	// Create gRPC server with interceptors
 	server := grpc.NewServer(interceptors)
+	authv1.RegisterAuthServiceServer(server, NewAuthServer(cfg.AuthService))
 
 	// Enable reflection for grpcurl and other tools
 	reflection.Register(server)

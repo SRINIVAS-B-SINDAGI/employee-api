@@ -10,6 +10,7 @@ import (
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/config"
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/persistence/postgres"
 	transportgrpc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/transport/grpc"
+	authuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/auth"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 )
@@ -44,8 +45,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	userRepo := postgres.NewUserRepository(db)
+	authService := authuc.NewService(userRepo)
+
 	grpcServer := transportgrpc.NewServer(transportgrpc.ServerConfig{
-		Logger: log.With(logger, "transport", "grpc"),
+		AuthService: authService,
+		Logger:      log.With(logger, "transport", "grpc"),
 	})
 
 	errChan := make(chan error, 1)
