@@ -81,3 +81,19 @@ func NewUnauthorizedError(message string) *AppError {
 		Message: message,
 	}
 }
+
+func IsValidationError(err error) bool {
+	var appErr *AppError
+	if errors.As(err, &appErr) {
+		return appErr.Code == http.StatusBadRequest
+	}
+	return false
+}
+
+func IsUnauthorizedError(err error) bool {
+	var appErr *AppError
+	if errors.As(err, &appErr) {
+		return appErr.Code == http.StatusUnauthorized
+	}
+	return false
+}
