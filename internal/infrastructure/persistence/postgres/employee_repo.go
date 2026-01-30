@@ -35,3 +35,25 @@ func (r *employeeRepository) FindByID(ctx context.Context, id uuid.UUID) (*entit
 	}
 	return &employee, nil
 }
+
+func (r *employeeRepository) Update(ctx context.Context, employee *entity.Employee) error {
+	result := r.db.WithContext(ctx).Save(employee)
+	if result.Error != nil {
+		return errors.NewInternalError(result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return errors.NewNotFoundError("employee")
+	}
+	return nil
+}
+
+func (r *employeeRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	result := r.db.WithContext(ctx).Delete(&entity.Employee{}, "id = ?", id)
+	if result.Error != nil {
+		return errors.NewInternalError(result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return errors.NewNotFoundError("employee")
+	}
+	return nil
+}

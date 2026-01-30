@@ -14,6 +14,8 @@ import (
 type Service interface {
 	Create(ctx context.Context, fullName, jobTitle, country string, grossSalary decimal.Decimal) (*entity.Employee, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Employee, error)
+	Update(ctx context.Context, id uuid.UUID, fullName, jobTitle, country string, grossSalary decimal.Decimal) (*entity.Employee, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type service struct {
@@ -55,4 +57,30 @@ func (s *service) validateEmployee(fullName, jobTitle, country string, grossSala
 		return errors.NewValidationError("gross_salary cannot be negative")
 	}
 	return nil
+}
+
+func (s *service) Update(ctx context.Context, id uuid.UUID, fullName, jobTitle, country string, grossSalary decimal.Decimal) (*entity.Employee, error) {
+	if err := s.validateEmployee(fullName, jobTitle, country, grossSalary); err != nil {
+		return nil, err
+	}
+
+	employee, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	employee.FullName = fullName
+	employee.JobTitle = jobTitle
+	employee.Country = country
+	employee.GrossSalary = grossSalary
+
+	if err := s.repo.Update(ctx, employee); err != nil {
+		return nil, err
+	}
+
+	return employee, nil
+}
+
+func (s *service) Delete(ctx context.Context, id uuid.UUID) error {
+	return s.repo.Delete(ctx, id)
 }
