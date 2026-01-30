@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/infrastructure/auth"
 	authuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/auth"
 	employeeuc "github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/employee"
 	"github.com/SRINIVAS-B-SINDAGI/employee-api/internal/usecase/salary"
@@ -18,6 +19,7 @@ type ServerConfig struct {
 	EmployeeService employeeuc.Service
 	SalaryService   salary.Service
 	Logger          log.Logger
+	JWTManager      *auth.JWTManager
 }
 
 // NewServer creates a new gRPC server with all services registered.
@@ -26,6 +28,7 @@ func NewServer(cfg ServerConfig) *grpc.Server {
 	interceptors := grpc.ChainUnaryInterceptor(
 		RecoveryInterceptor(cfg.Logger),
 		LoggingInterceptor(cfg.Logger),
+		AuthInterceptor(cfg.JWTManager),
 	)
 
 	// Create gRPC server with interceptors

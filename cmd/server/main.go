@@ -58,6 +58,7 @@ func main() {
 		AuthService:     authService,
 		EmployeeService: employeeService,
 		SalaryService:   salaryService,
+		JWTManager:      jwtManager,
 		Logger:          log.With(logger, "transport", "grpc"),
 	})
 
